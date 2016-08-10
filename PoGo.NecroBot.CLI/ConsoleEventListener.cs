@@ -109,14 +109,14 @@ namespace PoGo.NecroBot.CLI
         {
             if (fortFailedEvent.Try != 1 && fortFailedEvent.Looted == false)
             {
-                Logger.lineSelect(0, 1);
+                Logger.lineSelect(0, 1); // Replaces the last line to prevent spam.
             }
 
             if (fortFailedEvent.Looted == true)
             {
                 Logger.Write(
                 session.Translation.GetTranslation(TranslationString.SoftBanBypassed),
-                LogLevel.SoftBan);
+                LogLevel.SoftBan, ConsoleColor.Green);
             } else {
                 Logger.Write(
                 session.Translation.GetTranslation(TranslationString.EventFortFailed, fortFailedEvent.Name, fortFailedEvent.Try, fortFailedEvent.Max),
@@ -126,12 +126,13 @@ namespace PoGo.NecroBot.CLI
 
         private static void HandleEvent(FortTargetEvent fortTargetEvent, ISession session)
         {
-            // int intTimeForArrival = (int) ( fortTargetEvent.Distance / ( session.LogicSettings.WalkingSpeedInKilometerPerHour * 0.277778 ) );
+
+            int intTimeForArrival = (int) ( fortTargetEvent.Distance / ( session.LogicSettings.WalkingSpeedInKilometerPerHour * 0.5 ) );
 
             Logger.Write(
-                session.Translation.GetTranslation(TranslationString.EventFortTargeted, fortTargetEvent.Name ),
-                    // Math.Round(fortTargetEvent.Distance), intTimeForArrival ),
-                LogLevel.Info);
+                session.Translation.GetTranslation(TranslationString.EventFortTargeted, fortTargetEvent.Name,
+                     Math.Round(fortTargetEvent.Distance), intTimeForArrival ),
+                LogLevel.Info, ConsoleColor.Gray);
         }
 
         private static void HandleEvent(PokemonCaptureEvent pokemonCaptureEvent, ISession session)
@@ -241,9 +242,9 @@ namespace PoGo.NecroBot.CLI
         private static void HandleEvent(SnipeScanEvent snipeScanEvent, ISession session)
         {
             Logger.Write(snipeScanEvent.PokemonId == PokemonId.Missingno
-                ? session.Translation.GetTranslation(TranslationString.SnipeScan,
+                ? ((snipeScanEvent.Source != null) ? "(" + snipeScanEvent.Source + ") " : null) + session.Translation.GetTranslation(TranslationString.SnipeScan,
                     $"{snipeScanEvent.Bounds.Latitude},{snipeScanEvent.Bounds.Longitude}")
-                : session.Translation.GetTranslation(TranslationString.SnipeScanEx, session.Translation.GetPokemonTranslation(snipeScanEvent.PokemonId),
+                : ((snipeScanEvent.Source != null) ? "(" + snipeScanEvent.Source + ") " : null) + session.Translation.GetTranslation(TranslationString.SnipeScanEx, session.Translation.GetPokemonTranslation(snipeScanEvent.PokemonId),
                     snipeScanEvent.Iv > 0 ? snipeScanEvent.Iv.ToString(CultureInfo.InvariantCulture) : session.Translation.GetTranslation(TranslationString.CommonWordUnknown),
                     $"{snipeScanEvent.Bounds.Latitude},{snipeScanEvent.Bounds.Longitude}"), LogLevel.Sniper);
         }
@@ -296,7 +297,7 @@ namespace PoGo.NecroBot.CLI
 
         private static void HandleEvent(EvolveCountEvent evolveCountEvent, ISession session )
         {
-            Logger.Write(session.Translation.GetTranslation(TranslationString.PkmPotentialEvolveCount, evolveCountEvent.Evolves), LogLevel.Update, ConsoleColor.White);
+            Logger.Write(session.Translation.GetTranslation(TranslationString.PkmPotentialEvolveCount, evolveCountEvent.Evolves), LogLevel.Evolve);
         }
 
         private static void HandleEvent( UpdateEvent updateEvent, ISession session )
